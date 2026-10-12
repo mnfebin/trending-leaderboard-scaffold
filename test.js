@@ -11,7 +11,7 @@ async function run() {
 
   // Upvote the target 50 times.
   for (let i = 0; i < 50; i++) {
-    // TODO: await upvote(target);
+    await upvote(target);
   }
 
   // Fetch the top 10 WITH metadata.
@@ -19,11 +19,20 @@ async function run() {
   console.log("Top 10:");
   top.forEach((p, i) => console.log(`  #${i + 1}  ${p.id}  score=${p.score}  ${p.title} (${p.author})`));
 
-  const madeIt = top.some((p) => p.id === target);
-  console.log(madeIt ? `\nPASS ✅  ${target} reached the top 10` : `\nFAIL ❌  ${target} is NOT in the top 10`);
+  const targetPost = top.find((p) => p.id === target);
+  const madeIt = Boolean(targetPost);
+  const hasMetadata = madeIt && targetPost.title === "Post number 50" && targetPost.author === "@user50";
+  const passed = madeIt && hasMetadata;
+  console.log(
+    passed
+      ? `\nPASS ✅  ${target} reached the top 10 with metadata`
+      : madeIt
+        ? `\nFAIL ❌  ${target} is missing metadata`
+        : `\nFAIL ❌  ${target} is NOT in the top 10`
+  );
 
   redis.disconnect();
-  process.exit(madeIt ? 0 : 1);
+  process.exit(passed ? 0 : 1);
 }
 
 run();
